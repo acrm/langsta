@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5C3D14BD-3D83-4DC5-A092-1E59D4FECC31}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LangStat.Client</RootNamespace>
+    <AssemblyName>LangStat.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Infrastructure.Client">
+      <HintPath>..\..\Infrastructure\Infrastructure.Client\bin\Debug\Infrastructure.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xceed.Wpf.Toolkit, Version=2.0.0.0, Culture=neutral, PublicKeyToken=3e4669d2f30244f4, processorArchitecture=MSIL">
+      <HintPath>..\..\Xceed.Wpf.Toolkit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EditLanguageView.xaml.cs">
+      <DependentUpon>EditLanguageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EditLanguageViewModel.cs" />
+    <Compile Include="LanguageComponent\LanguageStatisticsComponent\LanguageStatisticsView.xaml.cs">
+      <DependentUpon>LanguageStatisticsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LanguageComponent\LanguageStatisticsComponent\LanguageStatisticsViewModel.cs" />
+    <Compile Include="LanguageComponent\LanguageView.xaml.cs">
+      <DependentUpon>LanguageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LanguageComponent\LanguageViewModel.cs" />
+    <Compile Include="LanguageComponent\LanguageSourcesComponent\EditLanguageSourceView.xaml.cs">
+      <DependentUpon>EditLanguageSourceView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LanguageComponent\LanguageSourcesComponent\EditLanguageSourceViewModel.cs" />
+    <Compile Include="LanguageComponent\LanguageSourcesComponent\LanguageSourcesControllerItemView.xaml.cs">
+      <DependentUpon>LanguageSourcesControllerItemView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LanguageComponent\LanguageSourcesComponent\LanguageSourcesControllerItemViewModel.cs" />
+    <Compile Include="LanguageComponent\LanguageSourcesComponent\LanguageSourcesView.xaml.cs">
+      <DependentUpon>LanguageSourcesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="LanguageComponent\LanguageSourcesComponent\LanguageSourcesViewModel.cs" />
+    <Compile Include="MainWindowView.xaml.cs">
+      <DependentUpon>MainWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MainWindowViewModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TabsComponent\LanguagesTabsItemViewModel.cs" />
+    <Compile Include="TabsComponent\TabsView.xaml.cs">
+      <DependentUpon>TabsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="TabsComponent\TabsViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="LanguageComponent\LanguageStatisticsComponent\LanguageStatisticsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="LanguageComponent\LanguageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="LanguageComponent\LanguageSourcesComponent\EditLanguageSourceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="LanguageComponent\LanguageSourcesComponent\LanguageSourcesControllerItemView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="LanguageComponent\LanguageSourcesComponent\LanguageSourcesView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="TabsComponent\TabsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainWindowView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="EditLanguageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LangStat.Contracts\LangStat.Contracts.csproj">
+      <Project>{2b02942b-8598-442d-87ac-5b87aa2547e8}</Project>
+      <Name>LangStat.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LangStat.Core\LangStat.Core.csproj">
+      <Project>{fe22e717-fe76-48e2-be04-14ddb88a0327}</Project>
+      <Name>LangStat.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
