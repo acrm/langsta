@@ -11,49 +11,58 @@ namespace LangStat.Core
 {
     public class LanguagesRepository : ILanguagesRepository
     {
-        private readonly WordsRepository _wordsRepository;
         private readonly ILanguagesDao _languagesDao;
         private readonly ILanguageSourcesDao _languageSourcesDao;
-        private readonly Dictionary<string, Language> _languages = new Dictionary<string, Language>();
+        private readonly Dictionary<string, Language> _languagesCache;
 
-        public LanguagesRepository(ILanguagesDao languagesDao)
+        public LanguagesRepository(ILanguagesDao languagesDao, ILanguageSourcesDao languageSourcesDao)
         {
             _languagesDao = languagesDao;
-            _wordsRepository = new WordsRepository();
+            _languageSourcesDao = languageSourcesDao;
+            _languagesCache = new Dictionary<string, Language>();
+
+            _languagesDao.LanguageAdded += OnDaoLanguageAdded;
 
             var languageDtos = _languagesDao.GetAllLanguages();
                                     
-            foreach (var languageDto in languageDtos ?? new LanguageEntity[0])
+            foreach (var languageDto in languageDtos ?? new LanguageDto[0])
             {
-                var language = CreateLanguageFromEntity(languageDto);
+                var language = CreateLanguageFromDto(languageDto);
                 if (language == null) continue;
-                _languages.Add(language.Name, language);
+                _languagesCache.Add(language.Name, language);
             }
         }
 
-        private static Language CreateLanguageFromDto(LanguageDto languageDto)
+        void OnDaoLanguageAdded(object sender, LanguageDto addedLanguage)
         {
-            if (languageDto == null) return null;
+            if (addedLanguage == null || addedLanguage.Name == null) return;
 
-            var dao = new LanguageSourcesDao(languageDto.Name);
-            var repository = new LanguageSourcesRepository(null, dao);
-            return new Language(languageDto.Name, repository);
+            var languageKey = addedLanguage.Name;
+            var language = CreateLanguageFromDto(addedLanguage);
+
+            if (_languagesCache.ContainsKey(languageKey))
+            {
+                _languagesCache[languageKey] = language;
+            }
+            else 
+            {
+                _languagesCache.Add(languageKey, language);
+            }
         }
 
-        private static Language CreateLanguageFromEntity(LanguageEntity languageEntity)
+        private Language CreateLanguageFromDto(LanguageDto languageDto)
         {
-            if (languageEntity == null) return null;
-            var dao = new LanguageSourcesDao(languageEntity.Name);
-            var repo = new LanguageSourcesRepository(null, dao);
-            return new Language(languageEntity.Name, repo);
+            if (languageDto == null) return null;
+            var languageSourcesRepository = new LanguageSourcesRepository(languageDto.Name, _languageSourcesDao);
+            return new Language(languageDto.Name, languageSourcesRepository);
         }
 
         public Language GetLanguage(string languageName)
         {
             if (string.IsNullOrWhiteSpace(languageName)) return null;
-            if (!_languages.ContainsKey(languageName)) return null;
+            if (!_languagesCache.ContainsKey(languageName)) return null;
 
-            var language = _languages[languageName];
+            var language = _languagesCache[languageName];
             if (language == null) return null;
 
             return language;
@@ -63,18 +72,15 @@ namespace LangStat.Core
         {
             if (request == null) return new LanguageCreationResponse { IsSuccessful = false };
             if (string.IsNullOrWhiteSpace(request.Name)) return new LanguageCreationResponse { IsSuccessful = false };
-            if (_languages.ContainsKey(request.Name)) return new LanguageCreationResponse { IsSuccessful = false };
+            if (_languagesCache.ContainsKey(request.Name)) return new LanguageCreationResponse { IsSuccessful = false };
 
 
-            var dao = new LanguageSourcesDao(request.Name);
-            var repo = new LanguageSourcesRepository(null, dao);
-            var language = new Language(request.Name, repo);
-            var languageEntity = new LanguageEntity { Name = language.Name };
-            var isSuccesful = _languagesDao.AddLanguage(languageEntity);
+            var languageSourcesRepository = new LanguageSourcesRepository(request.Name, _languageSourcesDao);
+            var language = new Language(request.Name, languageSourcesRepository); 
+            var languageDto = new LanguageDto { Name = language.Name };
+            var isSuccesful = _languagesDao.AddLanguage(languageDto);
             if (!isSuccesful) return new LanguageCreationResponse { IsSuccessful = false };
             
-            _languages.Add(request.Name, language);
-
             return new LanguageCreationResponse 
             {
                 IsSuccessful = true,
@@ -84,7 +90,7 @@ namespace LangStat.Core
 
         public Language[] GetAllLanguages()
         {
-            return _languages.Values
+            return _languagesCache.Values
                 .Where(language => language != null)
                 .ToArray();
         }

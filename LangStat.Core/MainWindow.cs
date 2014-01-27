@@ -19,7 +19,8 @@ namespace LangStat.Core
         public MainWindow()
         {
             var languagesDao = new LanguagesDao();
-            LanguagesRepository = new LanguagesRepository(languagesDao);
+            var languagesSourcesDao = new LanguagesSourcesDao(languagesDao);
+            LanguagesRepository = new LanguagesRepository(languagesDao, languagesSourcesDao);
         }
     }
 }

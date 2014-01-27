@@ -8,6 +8,8 @@ namespace LangStat.Contracts
 {
     public class LanguageSourceCreationRequest
     {
+        public string LanguageName { get; set; }
+
         /// <summary>
         /// Адрес.
         /// </summary>

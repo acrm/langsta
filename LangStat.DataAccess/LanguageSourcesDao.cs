@@ -10,15 +10,15 @@ using System.Xml;
 
 namespace LangStat.DataAccess
 {
-    public class LanguageSourcesDao : ILanguageSourcesDao
+    public class LanguagesSourcesDao : ILanguageSourcesDao
     {
         const string baseDirectory = "Data/Languages";
         const string fileNameExtension = "src";
-        private readonly string _languageName;
+        private readonly ILanguagesDao _languagesDao;
 
-        public LanguageSourcesDao(string languageName)
+        public LanguagesSourcesDao(ILanguagesDao languagesDao)
         {
-            _languageName = languageName;
+            _languagesDao = languagesDao;
         }
         
         private string CreateNameFromAddress(string address)
@@ -30,11 +30,11 @@ namespace LangStat.DataAccess
                 .Replace("/", "-");
         }
 
-        public bool AddLanguageSource(LanguageSourceEntity languageSource)
+        public bool AddLanguageSource(string languageName, LanguageSourceDto languageSource)
         {
             var directoryPath = string.Format("{0}/{1}",
                                             baseDirectory,
-                                            _languageName);
+                                            languageName);
             if (!Directory.Exists(directoryPath)) return false;
 
             var fileName = string.Format("{0}/{1}.{2}",
@@ -52,21 +52,23 @@ namespace LangStat.DataAccess
                     xmlWriter.WriteAttributeString("Id", languageSource.Id.ToString());
                     xmlWriter.WriteEndElement();
                     xmlWriter.Flush();
-
-                    return true;
                 }
             }
+
+            RaiseLanguageSourceAdded(languageSource);
+
+            return true;
         }
 
-        public LanguageSourceEntity[] GetAllLanguageSources()
+        public LanguageSourceDto[] GetLanguageSources(string languageName)
         {
             var directoryPath = string.Format("{0}/{1}",
                                              baseDirectory,
-                                             _languageName);
+                                             languageName);
             if (!Directory.Exists(directoryPath)) return null;
 
             var files = Directory.EnumerateFiles(directoryPath, "*." + fileNameExtension);
-            var languageSources = new List<LanguageSourceEntity>();
+            var languageSources = new List<LanguageSourceDto>();
             foreach (var fileName in files)
             {
                 using (var fileStream = File.OpenText(fileName))
@@ -86,7 +88,7 @@ namespace LangStat.DataAccess
                             id = Guid.Empty;
                         }
                         
-                        var languageSource = new LanguageSourceEntity
+                        var languageSource = new LanguageSourceDto
                         {
                             Address = address,
                             Id = id
@@ -98,5 +100,16 @@ namespace LangStat.DataAccess
 
             return languageSources.ToArray();
         }
+
+        private void RaiseLanguageSourceAdded(LanguageSourceDto addedLanguageSource)
+        {
+            var handler = LanguageSourceAdded;
+            if (handler != null)
+            {
+                handler.Invoke(this, addedLanguageSource);
+            }
+        }
+
+        public event EventHandler<LanguageSourceDto> LanguageSourceAdded;
     }
 }

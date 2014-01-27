@@ -11,11 +11,16 @@ namespace LangStat.Client
 {
     public class EditLanguageViewModel : ViewModelBase
     {
-        private readonly LanguageDto _language;
+        private readonly LanguageCreationRequest _creationRequest;
 
-        public EditLanguageViewModel(LanguageDto language)
+        public EditLanguageViewModel(Language languageToEdit = null)
         {
-            _language = language; 
+            _creationRequest = new LanguageCreationRequest();
+
+            if (languageToEdit != null) 
+            {
+                _creationRequest.Name = languageToEdit.Name;
+            }
         }
 
         public bool TitleIsValid
@@ -34,7 +39,7 @@ namespace LangStat.Client
                 _title = value;
                 if (TitleIsValid)
                 {
-                    _language.Name = _title;
+                    _creationRequest.Name = _title;
                 }
 
                 Validate();
@@ -53,9 +58,9 @@ namespace LangStat.Client
             }
         }
 
-        public LanguageDto GetLanguage()
+        public LanguageCreationRequest  GetCreationRequest()
         {
-            return _language;
+            return _creationRequest;
         }
     }
 }

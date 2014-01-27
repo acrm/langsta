@@ -46,20 +46,16 @@ namespace LangStat.Client
 
         private void AddLanguage()
         {
-            var emptyLanguage = new LanguageDto { Name = "Новый язык" };
-
-            var editViewModel = new EditLanguageViewModel(emptyLanguage);
+            var editViewModel = new EditLanguageViewModel();
             var editView = new EditLanguageView();
             DialogHelper.ShowDialog(new Size(300, 120), "Добавление языка", editView, editViewModel, () =>
             {
-                var filledLanguage = editViewModel.GetLanguage();
-                var languagesName = filledLanguage.Name;
+                var languageCreationRequest = editViewModel.GetCreationRequest();
 
                 var languagesRepository = _mainWindow.LanguagesRepository;
                 if (languagesRepository == null) return;
 
-                var request = new LanguageCreationRequest { Name = languagesName };
-                var response = languagesRepository.CreateLanguage(request);
+                var response = languagesRepository.CreateLanguage(languageCreationRequest);
                 if (response == null || !response.IsSuccessful) return;
 
                 var addedLanguage = languagesRepository.GetLanguage(response.Name);

@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LangStat.Contracts
+namespace LangStat.DataAccess.Contracts
 {
-    public class LanguageSourceDto
+    public class LanguageDto
     {
         /// <summary>
-        /// Адрес.
+        /// Название языка.
         /// </summary>
-        public string Address { get; set; }
+        public string Name { get; set; }
     }
 }

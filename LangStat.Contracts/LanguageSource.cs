@@ -10,13 +10,8 @@ namespace LangStat.Contracts
 {
     public class LanguageSource
     {
-        private readonly Language _language;
-        //private readonly WordsRepository _wordsRepository;
-
-        public LanguageSource(Language language)
+        public LanguageSource(string languageName)
         {
-            _language = language;
-            //_wordsRepository = language.WordsRepository;
         }
 
         public Guid Id { get; set; }

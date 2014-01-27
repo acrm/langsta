@@ -11,11 +11,17 @@ namespace LangStat.Client.LanguageSourcesComponent
 {
     public class EditLanguageSourceViewModel : ViewModelBase
     {
-        private readonly LanguageSourceDto _languageSource;
+        private readonly LanguageSourceCreationRequest _creationRequest;
 
-        public EditLanguageSourceViewModel(LanguageSourceDto languageSourceToEdit)
+        public EditLanguageSourceViewModel(Language language, LanguageSource languageSourceToEdit = null)
         {
-            _languageSource = languageSourceToEdit;
+            _creationRequest = new LanguageSourceCreationRequest();
+            if (languageSourceToEdit != null)
+            {
+                _creationRequest.Address = languageSourceToEdit.Address;
+            }
+
+            _creationRequest.LanguageName = language.Name;
         }
 
         public string Address
@@ -24,7 +30,7 @@ namespace LangStat.Client.LanguageSourcesComponent
             set
             {
                 _address = value;
-                _languageSource.Address = _address;
+                _creationRequest.Address = _address;
                 Validate();
                 RaisePropertyChanged("Address");
             }
@@ -32,16 +38,16 @@ namespace LangStat.Client.LanguageSourcesComponent
 
         private string _address;
 
-        public LanguageSourceDto GetLanguageSource()
+        public LanguageSourceCreationRequest GetCreationRequest()
         {
-            return _languageSource;
+            return _creationRequest;
         }
 
         public override bool IsValid
         {
             get
             {
-                var isValid = !string.IsNullOrWhiteSpace(_languageSource.Address);
+                var isValid = !string.IsNullOrWhiteSpace(_creationRequest.Address);
                 return isValid && base.IsValid;
             }
         }

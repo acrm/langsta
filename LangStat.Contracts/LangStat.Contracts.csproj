@@ -45,17 +45,9 @@
     <Compile Include="ILanguagesRepository.cs" />
     <Compile Include="ILanguageSourcesRepository.cs" />
     <Compile Include="LanguageCreationRequest.cs" />
-    <Compile Include="LanguageDto.cs" />
     <Compile Include="LanguageSource.cs" />
     <Compile Include="LanguageSourceCreationRequest.cs" />
-    <Compile Include="LanguageSourceDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\LangStat.DataAccess.Contracts\LangStat.DataAccess.Contracts.csproj">
-      <Project>{38b9de54-e24d-45f4-b5cf-860890f08278}</Project>
-      <Name>LangStat.DataAccess.Contracts</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

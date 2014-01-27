@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6443BB7E-936E-4DEC-905C-58105EB3F38E}</ProjectGuid>
+    <ProjectGuid>{38B9DE54-E24D-45F4-B5CF-860890F08278}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LangStat.DataAccess</RootNamespace>
-    <AssemblyName>LangStat.DataAccess</AssemblyName>
+    <RootNamespace>LangStat.DataAccess.Contracts</RootNamespace>
+    <AssemblyName>LangStat.DataAccess.Contracts</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,19 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LanguagesDao.cs" />
-    <Compile Include="LanguageSourcesDao.cs" />
+    <Compile Include="ILanguagesDao.cs" />
+    <Compile Include="ILanguageSourcesDao.cs" />
+    <Compile Include="LanguageDto.cs" />
+    <Compile Include="LanguageSourceDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LangStat.Contracts\LangStat.Contracts.csproj">
-      <Project>{2b02942b-8598-442d-87ac-5b87aa2547e8}</Project>
-      <Name>LangStat.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LangStat.DataAccess.Contracts\LangStat.DataAccess.Contracts.csproj">
-      <Project>{38b9de54-e24d-45f4-b5cf-860890f08278}</Project>
-      <Name>LangStat.DataAccess.Contracts</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -47,13 +47,13 @@
     <Compile Include="WordsRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\LangStat.DataAccess.Contracts\LangStat.DataAccess.Contracts.csproj">
-      <Project>{38b9de54-e24d-45f4-b5cf-860890f08278}</Project>
-      <Name>LangStat.DataAccess.Contracts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\LangStat.Contracts\LangStat.Contracts.csproj">
       <Project>{2b02942b-8598-442d-87ac-5b87aa2547e8}</Project>
       <Name>LangStat.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LangStat.DataAccess.Contracts\LangStat.DataAccess.Contracts.csproj">
+      <Project>{38b9de54-e24d-45f4-b5cf-860890f08278}</Project>
+      <Name>LangStat.DataAccess.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\LangStat.DataAccess\LangStat.DataAccess.csproj">
       <Project>{6443bb7e-936e-4dec-905c-58105eb3f38e}</Project>

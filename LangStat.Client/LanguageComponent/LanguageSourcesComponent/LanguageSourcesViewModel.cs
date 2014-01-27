@@ -15,9 +15,11 @@ namespace LangStat.Client.LanguageSourcesComponent
     public class LanguageSourcesViewModel
     {
         private readonly ILanguageSourcesRepository _sourcesRepository;
+        private readonly Language _language;
 
-        public LanguageSourcesViewModel(ILanguageSourcesRepository sourcesRepository)
+        public LanguageSourcesViewModel(Language language, ILanguageSourcesRepository sourcesRepository)
         {
+            _language = language;
             _sourcesRepository = sourcesRepository;
 
             AddCommand = new DelegateCommand(Add);
@@ -28,12 +30,7 @@ namespace LangStat.Client.LanguageSourcesComponent
 
             Items = new ObservableCollection<LanguageSourceViewModel>(items);
         }
-
-        //void OnLanguageSourceAdded(object sender, LanguageSourceDto addedLanguageSource)
-        //{
-        //    Items.Add(new LanguageSourceViewModel(addedLanguageSource));
-        //}
-
+        
         public ObservableCollection<LanguageSourceViewModel> Items { get; private set; }
 
         private void Delete()
@@ -43,19 +40,14 @@ namespace LangStat.Client.LanguageSourcesComponent
 
         private void Add()
         {
-            var emptyLanguageSource = new LanguageSourceDto();
-            var editViewModel = new EditLanguageSourceViewModel(emptyLanguageSource);
+            var editViewModel = new EditLanguageSourceViewModel(_language);
             var editView = new EditLanguageSourceView();
 
             DialogHelper.ShowDialog(new Size(300, 150), "Добавение источника языка", editView, editViewModel, () =>
                 {
-                    var filledLanguageSource = editViewModel.GetLanguageSource();
-                    var request = new LanguageSourceCreationRequest 
-                    {
-                        Address = filledLanguageSource.Address
-                    };
+                    var languageSourceCreationRequest = editViewModel.GetCreationRequest();
 
-                    var response = _sourcesRepository.CreateLanguageSource(request);
+                    var response = _sourcesRepository.CreateLanguageSource(languageSourceCreationRequest);
                     if (response == null || !response.IsSuccessful) return;
 
                     var addedLanguageSource = _sourcesRepository.GetLanguageSource(response.Id);

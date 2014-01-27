@@ -23,7 +23,7 @@ namespace LangStat.Client.LanguageComponent
             _languageStatisticsViewModel = new LanguageStatisticsViewModel();
             LanguageStatisticsView = new LanguageStatisticsView { Model = _languageStatisticsViewModel };
 
-            _languageSourcesViewModel = new LanguageSourcesViewModel(_language.LanguageSourcesRepository);
+            _languageSourcesViewModel = new LanguageSourcesViewModel(_language, _language.LanguageSourcesRepository);
             LanguageSourcesView = new LanguageSourcesView { Model = _languageSourcesViewModel };
         }
 
