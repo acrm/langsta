@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageStatisticsApp", "LanguageStatisticsApp.csproj", "{CDCDF53C-1827-49DB-9D7C-4CE938C130AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LangStat.Contracts", "LangStat.Contracts\LangStat.Contracts.csproj", "{2B02942B-8598-442D-87AC-5B87AA2547E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LangStat.Core.Contracts", "LangStat.Contracts\LangStat.Core.Contracts.csproj", "{2B02942B-8598-442D-87AC-5B87AA2547E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LangStat.DataAccess", "LangStat.DataAccess\LangStat.DataAccess.csproj", "{6443BB7E-936E-4DEC-905C-58105EB3F38E}"
 EndProject

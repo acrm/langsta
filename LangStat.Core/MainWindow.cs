@@ -1,4 +1,4 @@
-﻿using LangStat.Contracts;
+﻿using LangStat.Core.Contracts;
 using LangStat.DataAccess;
 using System;
 using System.Collections.Generic;
@@ -16,11 +16,14 @@ namespace LangStat.Core
 
         public ILanguagesRepository LanguagesRepository { get; private set; }
 
+        public StatisticsProcessor StatisticsProcessor { get; private set; }
+
         public MainWindow()
         {
             var languagesDao = new LanguagesDao();
             var languagesSourcesDao = new LanguagesSourcesDao(languagesDao);
             LanguagesRepository = new LanguagesRepository(languagesDao, languagesSourcesDao);
+            StatisticsProcessor = new StatisticsProcessor(LanguagesRepository);
         }
     }
 }

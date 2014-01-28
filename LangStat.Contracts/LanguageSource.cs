@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LangStat.Contracts
+namespace LangStat.Core.Contracts
 {
     public class LanguageSource
     {

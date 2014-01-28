@@ -1,4 +1,6 @@
 ﻿using Infrastructure.Client;
+using LangStat.Core;
+using LangStat.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +11,12 @@ namespace LangStat.Client.LanguageComponent.LanguageStatisticsComponent
 {
     public class LanguageStatisticsViewModel : ViewModelBase
     {
-        public LanguageStatisticsViewModel()
-        { }
+        private StatisticsProcessor _statisticsProcessor;
+
+        public LanguageStatisticsViewModel(Language language, StatisticsProcessor statisticsProcessor)
+        {
+            _statisticsProcessor = statisticsProcessor;
+        }
 
     }
 }

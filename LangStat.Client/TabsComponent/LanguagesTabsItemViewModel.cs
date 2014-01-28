@@ -5,7 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LangStat.Client.LanguageComponent;
-using LangStat.Contracts;
+using LangStat.Core.Contracts;
+using LangStat.Core;
 
 namespace LangStat.Client.LanguagesTabsComponent
 {
@@ -14,12 +15,12 @@ namespace LangStat.Client.LanguagesTabsComponent
         private readonly Language _language;
         private readonly LanguageViewModel _languageViewModel;
 
-        public LanguagesTabsItemViewModel(Language language)
+        public LanguagesTabsItemViewModel(Language language, StatisticsProcessor statisticsProcessor)
         {
             _language = language;
 
             LanguageTitle = _language.Name;
-            _languageViewModel = new LanguageViewModel(_language);
+            _languageViewModel = new LanguageViewModel(_language, statisticsProcessor);
             LanguageComponent = new LanguageView { Model = _languageViewModel };
         }
 

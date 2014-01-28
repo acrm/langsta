@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using LangStat.Contracts;
+using LangStat.Core.Contracts;
 using LangStat.Client.LanguageSourcesComponent;
 using LangStat.Client.LanguageComponent.LanguageStatisticsComponent;
+using LangStat.Core;
 
 namespace LangStat.Client.LanguageComponent
 {
@@ -16,11 +17,11 @@ namespace LangStat.Client.LanguageComponent
         private readonly LanguageStatisticsViewModel _languageStatisticsViewModel;
         private readonly LanguageSourcesViewModel _languageSourcesViewModel;
 
-        public LanguageViewModel(Language language)
+        public LanguageViewModel(Language language, StatisticsProcessor statisticsProcessor)
         {
             _language = language;
 
-            _languageStatisticsViewModel = new LanguageStatisticsViewModel();
+            _languageStatisticsViewModel = new LanguageStatisticsViewModel(language, statisticsProcessor);
             LanguageStatisticsView = new LanguageStatisticsView { Model = _languageStatisticsViewModel };
 
             _languageSourcesViewModel = new LanguageSourcesViewModel(_language, _language.LanguageSourcesRepository);

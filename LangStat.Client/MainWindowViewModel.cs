@@ -1,6 +1,6 @@
 ﻿using Infrastructure.Client;
 using Infrastructure.Client.Dialog;
-using LangStat.Contracts;
+using LangStat.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,9 +34,9 @@ namespace LangStat.Client
             var languages = _mainWindow.LanguagesRepository.GetAllLanguages();
             foreach (var language in languages ?? new Language[0])
             {
-                var languageViewModel = new LanguageViewModel(language);
+                var languageViewModel = new LanguageViewModel(language, mainWindow.StatisticsProcessor);
                 Languages.Add(languageViewModel);
-                _tabsViewModel.OpenTab(language);
+                _tabsViewModel.OpenTab(language, mainWindow.StatisticsProcessor);
             }
         }
 
@@ -60,7 +60,7 @@ namespace LangStat.Client
 
                 var addedLanguage = languagesRepository.GetLanguage(response.Name);
 
-                _tabsViewModel.OpenTab(addedLanguage);
+                _tabsViewModel.OpenTab(addedLanguage, _mainWindow.StatisticsProcessor);
             });
 
         }

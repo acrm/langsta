@@ -7,7 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using LangStat.Client.LanguageComponent;
 using LangStat.Client.LanguagesTabsComponent;
-using LangStat.Contracts;
+using LangStat.Core.Contracts;
+using LangStat.Core;
 
 namespace LangStat.Client.TabsComponent
 {
@@ -21,7 +22,7 @@ namespace LangStat.Client.TabsComponent
             Items = new ObservableCollection<LanguagesTabsItemViewModel>();
         }
 
-        public void OpenTab(Language language)
+        public void OpenTab(Language language, StatisticsProcessor statisticsProcessor)
         {
             if (language == null) return;
 
@@ -40,7 +41,7 @@ namespace LangStat.Client.TabsComponent
             {
                 _languagesCache.Add(languageTitle, language);
                 
-                currentItem = new LanguagesTabsItemViewModel(language);
+                currentItem = new LanguagesTabsItemViewModel(language, statisticsProcessor);
                 Items.Add(currentItem);
             }
             

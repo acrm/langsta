@@ -130,9 +130,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LangStat.Contracts\LangStat.Contracts.csproj">
+    <ProjectReference Include="..\LangStat.Contracts\LangStat.Core.Contracts.csproj">
       <Project>{2b02942b-8598-442d-87ac-5b87aa2547e8}</Project>
-      <Name>LangStat.Contracts</Name>
+      <Name>LangStat.Core.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\LangStat.Core\LangStat.Core.csproj">
       <Project>{fe22e717-fe76-48e2-be04-14ddb88a0327}</Project>

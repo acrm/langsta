@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LangStat.Client.LanguageComponent;
-using LangStat.Contracts;
+using LangStat.Core.Contracts;
 
 namespace LangStat.Client.LanguageSourcesComponent
 {

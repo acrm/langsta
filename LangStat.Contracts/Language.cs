@@ -1,4 +1,4 @@
-﻿using LangStat.Contracts;
+﻿using LangStat.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace LangStat.Contracts
+namespace LangStat.Core.Contracts
 {
     public class Language
     {

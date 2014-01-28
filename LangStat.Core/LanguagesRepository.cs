@@ -1,4 +1,4 @@
-﻿using LangStat.Contracts;
+﻿using LangStat.Core.Contracts;
 using LangStat.DataAccess;
 using LangStat.DataAccess.Contracts;
 using System;

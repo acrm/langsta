@@ -1,7 +1,9 @@
-﻿using System;
+﻿using LangStat.Core.Contracts;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +11,40 @@ namespace LangStat.Core
 {
     public class StatisticsProcessor
     {
+        private readonly ILanguagesRepository _languagesRepository;
+
+        public StatisticsProcessor(ILanguagesRepository languagesRepository)
+        {
+            _languagesRepository = languagesRepository;
+        }
+
+        public string CreateLanguageStatistics(string languageName)
+        {
+            var language = _languagesRepository.GetLanguage(languageName);
+            if (language == null) return string.Empty;
+
+            var languageSources = language.LanguageSourcesRepository.GetAllLanguageSources();
+            if (languageSources == null || languageSources.Length == 0) return string.Empty;
+
+
+            var languageStatistics = new StringBuilder();
+            foreach (var languageSource in languageSources)
+            {
+                var content = LoadContent(languageSource.Address);
+                if (content == null) continue;
+                
+                var words = ExtractWords(content);
+                if (words == null || words.Length == 0) continue;
+
+                var statistics = CalculateStatistics(words);
+
+                languageStatistics.AppendFormat("Источник: {0}\n", languageSource.Address);
+                languageStatistics.AppendLine(statistics);
+                languageStatistics.AppendLine();
+            }
+
+            return languageStatistics.ToString();
+        }
 
         public event EventHandler<string> TextLoaded;
 
@@ -25,13 +61,11 @@ namespace LangStat.Core
         {
             if (string.IsNullOrWhiteSpace(address)) return null;
 
-            //var request = (HttpWebRequest)WebRequest.Create(address);
-            //var response = (HttpWebResponse)request.GetResponse();
-            var stream = new StreamReader(@"R:\Рома\WebParser\html\Кавычки — Википедия.htm");
-            using (var reader = stream)
+            var request = (HttpWebRequest)WebRequest.Create(address);
+            var response = (HttpWebResponse)request.GetResponse();
+            using (var reader = new StreamReader(response.GetResponseStream()))
             {
                 var content = reader.ReadToEnd();
-                RaiseTextLoaded(content);
 
                 return content;
             }

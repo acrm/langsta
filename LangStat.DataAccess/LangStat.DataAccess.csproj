@@ -44,9 +44,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LangStat.Contracts\LangStat.Contracts.csproj">
+    <ProjectReference Include="..\LangStat.Contracts\LangStat.Core.Contracts.csproj">
       <Project>{2b02942b-8598-442d-87ac-5b87aa2547e8}</Project>
-      <Name>LangStat.Contracts</Name>
+      <Name>LangStat.Core.Contracts</Name>
     </ProjectReference>
     <ProjectReference Include="..\LangStat.DataAccess.Contracts\LangStat.DataAccess.Contracts.csproj">
       <Project>{38b9de54-e24d-45f4-b5cf-860890f08278}</Project>
