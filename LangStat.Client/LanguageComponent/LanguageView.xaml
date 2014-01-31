@@ -9,8 +9,6 @@
         <Expander DockPanel.Dock="Bottom" Header="Источники">
             <ContentControl Content="{Binding LanguageSourcesView}" Height="100" />
         </Expander>
-        <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled">
-            <ContentControl Content="{Binding LanguageStatisticsView}" />
-        </ScrollViewer>
+        <ContentControl Content="{Binding LanguageStatisticsView}" />
     </DockPanel>
 </UserControl>

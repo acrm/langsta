@@ -10,8 +10,16 @@ namespace LangStat.Core.Contracts
     {
         LanguageCreationResponse CreateLanguage(LanguageCreationRequest request);
 
+        bool DeleteLanguage(Language language);
+
         Language[] GetAllLanguages();
 
         Language GetLanguage(string languageName);
+        
+        event EventHandler<Language> LanguageAdded;
+
+        event EventHandler<Language> LanguageDeleted;
+        
+        event EventHandler<Language> LanguageUpdated;
     }
 }

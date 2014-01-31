@@ -12,6 +12,7 @@ using Xceed.Wpf.Toolkit;
 using System.Collections.ObjectModel;
 using LangStat.Core;
 using LangStat.Client.LanguageComponent;
+using System.Collections.Specialized;
 
 namespace LangStat.Client
 {
@@ -24,12 +25,17 @@ namespace LangStat.Client
         {
             _mainWindow = mainWindow;
 
+            _mainWindow.LanguagesRepository.LanguageAdded += OnRepositoryLanguageAdded;
+            _mainWindow.LanguagesRepository.LanguageDeleted += OnRepositoryLanguageDeleted;
+
             _tabsViewModel = new TabsViewModel();
             LanguagesTabsView = new TabsView { Model = _tabsViewModel };
                         
             AddLanguageCommand = new DelegateCommand(AddLanguage);
-
+            RemoveLanguageCommand = new DelegateCommand(RemoveCurrentLanguage, CanRemoveCurrentLanguage);
+            
             Languages = new ObservableCollection<LanguageViewModel>();
+            Languages.CollectionChanged += Languages_CollectionChanged;
 
             var languages = _mainWindow.LanguagesRepository.GetAllLanguages();
             foreach (var language in languages ?? new Language[0])
@@ -40,9 +46,69 @@ namespace LangStat.Client
             }
         }
 
+        private void OnRepositoryLanguageDeleted(object sender, Language deletedLanguage)
+        {
+            if (deletedLanguage == null || deletedLanguage.Name == null) return;
+
+            var deletedLanguageiewModel = Languages
+                .FirstOrDefault(languageViewModel => languageViewModel.Language.Name == deletedLanguage.Name);
+            if (deletedLanguageiewModel == null) return;
+
+            Languages.Remove(deletedLanguageiewModel);
+            _tabsViewModel.CloseTab(deletedLanguage.Name);
+
+            RefreshCommands();
+        }
+
+        private void OnRepositoryLanguageAdded(object sender, Language addedLanguage)
+        {
+            if (addedLanguage == null || addedLanguage.Name == null) return;
+
+            var languageViewModel = new LanguageViewModel(addedLanguage, _mainWindow.StatisticsProcessor);
+            Languages.Add(languageViewModel);
+            _tabsViewModel.OpenTab(addedLanguage, _mainWindow.StatisticsProcessor);
+            
+            RefreshCommands();
+        }
+
+        private bool CanRemoveCurrentLanguage()
+        {
+            var selectedLanguageTab = _tabsViewModel.SelectedItem;
+            if (selectedLanguageTab == null) return false;
+
+            return true;
+        }
+
+        private void RemoveCurrentLanguage()
+        {
+            var selectedLanguageTab = _tabsViewModel.SelectedItem;
+            if (selectedLanguageTab == null) return;
+
+            var currentLanguageComponent = selectedLanguageTab.LanguageComponent;
+            if (currentLanguageComponent == null) return;
+
+            var current = currentLanguageComponent.Model.Language;
+            _mainWindow.LanguagesRepository.DeleteLanguage(current);
+        }
+
+        void Languages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                HasLanguages = true;
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove 
+                     && (e.NewItems == null || e.NewItems.Count == 0))
+            {
+                HasLanguages = false;
+            }
+        }
+
         public ObservableCollection<LanguageViewModel> Languages { get; private set; }
-        
+
         public DelegateCommand AddLanguageCommand { get; private set; }
+
+        public DelegateCommand RemoveLanguageCommand { get; private set; }
 
         private void AddLanguage()
         {
@@ -61,9 +127,22 @@ namespace LangStat.Client
                 var addedLanguage = languagesRepository.GetLanguage(response.Name);
 
                 _tabsViewModel.OpenTab(addedLanguage, _mainWindow.StatisticsProcessor);
+                RefreshCommands();
             });
 
         }
+
+        public bool HasLanguages
+        {
+            get { return _hasLanguages; }
+            set 
+            {
+                _hasLanguages = value;
+                RaisePropertyChanged("HasLanguages");
+            }
+        }
+
+        private bool _hasLanguages;
 
         public TabsView LanguagesTabsView
         {
@@ -76,5 +155,10 @@ namespace LangStat.Client
         }
 
         private TabsView _languagesTabsView;
+
+        private void RefreshCommands()
+        {
+            RemoveLanguageCommand.RaiseCanExecuteChanged();
+        }
     }
 }

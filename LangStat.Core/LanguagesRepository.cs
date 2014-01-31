@@ -22,6 +22,7 @@ namespace LangStat.Core
             _languagesCache = new Dictionary<string, Language>();
 
             _languagesDao.LanguageAdded += OnDaoLanguageAdded;
+            _languagesDao.LanguageDeleted += OnDaoLanguageDeleted;
 
             var languageDtos = _languagesDao.GetAllLanguages();
                                     
@@ -31,6 +32,20 @@ namespace LangStat.Core
                 if (language == null) continue;
                 _languagesCache.Add(language.Name, language);
             }
+        }
+
+        void OnDaoLanguageDeleted(object sender, LanguageDto removedLanguage)
+        {
+            if (removedLanguage == null || removedLanguage.Name == null) return;
+
+            var languageKey = removedLanguage.Name;
+            if (!_languagesCache.ContainsKey(languageKey)) return;
+
+            var successful = _languagesCache.Remove(languageKey);
+            if (!successful) return;
+
+            var language = CreateLanguageFromDto(removedLanguage);
+            RaiseLanguageDeleted(language);
         }
 
         void OnDaoLanguageAdded(object sender, LanguageDto addedLanguage)
@@ -47,6 +62,8 @@ namespace LangStat.Core
             else 
             {
                 _languagesCache.Add(languageKey, language);
+
+                RaiseLanguageAdded(language);
             }
         }
 
@@ -55,6 +72,16 @@ namespace LangStat.Core
             if (languageDto == null) return null;
             var languageSourcesRepository = new LanguageSourcesRepository(languageDto.Name, _languageSourcesDao);
             return new Language(languageDto.Name, languageSourcesRepository);
+        }
+
+        private LanguageDto CreateLanguageDto(Language language)
+        {
+            if (language == null) return null;
+
+            return new LanguageDto 
+            {
+                Name = language.Name
+            };
         }
 
         public Language GetLanguage(string languageName)
@@ -94,5 +121,47 @@ namespace LangStat.Core
                 .Where(language => language != null)
                 .ToArray();
         }
+        
+        public bool DeleteLanguage(Language language)
+        {
+            if (language == null) return false;
+
+            var languageDto = CreateLanguageDto(language);
+
+            return _languagesDao.DeleteLanguage(languageDto);
+        }
+
+        private void RaiseLanguageAdded(Language addedLanguage)
+        {
+            var handler = LanguageAdded;
+            if (handler != null)
+            {
+                handler.Invoke(this, addedLanguage);
+            }
+        }
+
+        public event EventHandler<Language> LanguageAdded;
+
+        private void RaiseLanguageDeleted(Language deletedLanguage)
+        {
+            var handler = LanguageDeleted;
+            if (handler != null)
+            {
+                handler.Invoke(this, deletedLanguage);
+            }
+        }
+
+        public event EventHandler<Language> LanguageDeleted;
+
+        private void RaiseLanguageUpdated(Language updatedLanguage)
+        {
+            var handler = LanguageUpdated;
+            if (handler != null)
+            {
+                handler.Invoke(this, updatedLanguage);
+            }
+        }
+
+        public event EventHandler<Language> LanguageUpdated;
     }
 }

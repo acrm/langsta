@@ -48,7 +48,15 @@ namespace LangStat.DataAccess
 
         public bool DeleteLanguage(LanguageDto language)
         {
-            throw new NotImplementedException();
+            var directoryName = string.Format("{0}/{1}", baseDirectory, language.Name);
+            if (!Directory.Exists(directoryName)) return false;
+
+            Directory.Delete(directoryName, recursive: true);
+            if (Directory.Exists(directoryName)) return false;
+
+            RaiseLanguageDeleted(language);
+
+            return true;
         }
 
         public LanguageDto[] GetAllLanguages()

@@ -13,20 +13,21 @@ namespace LangStat.Client.LanguageComponent
 {
     public class LanguageViewModel : ViewModelBase
     {
-        private readonly Language _language;
         private readonly LanguageStatisticsViewModel _languageStatisticsViewModel;
         private readonly LanguageSourcesViewModel _languageSourcesViewModel;
 
         public LanguageViewModel(Language language, StatisticsProcessor statisticsProcessor)
         {
-            _language = language;
+            Language = language;
 
             _languageStatisticsViewModel = new LanguageStatisticsViewModel(language, statisticsProcessor);
             LanguageStatisticsView = new LanguageStatisticsView { Model = _languageStatisticsViewModel };
 
-            _languageSourcesViewModel = new LanguageSourcesViewModel(_language, _language.LanguageSourcesRepository);
+            _languageSourcesViewModel = new LanguageSourcesViewModel(Language, Language.LanguageSourcesRepository);
             LanguageSourcesView = new LanguageSourcesView { Model = _languageSourcesViewModel };
         }
+
+        public Language Language { get; private set; }
 
         public LanguageSourcesView LanguageSourcesView
         {

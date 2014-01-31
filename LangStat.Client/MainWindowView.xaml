@@ -1,8 +1,11 @@
 ﻿<Window x:Class="LangStat.Client.MainWindowView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:wpfx="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:infr="clr-namespace:Infrastructure.Client;assembly=Infrastructure.Client"
         Title="MainWindow" Height="400" Width="400" Loaded="Window_Loaded">
+    <Window.Resources>
+        <infr:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Статистики">
@@ -12,9 +15,27 @@
             <MenuItem Header="Источники"></MenuItem>
             <MenuItem Header="Языки">
                 <MenuItem Header="Добавить..." Command="{Binding AddLanguageCommand}" />
+                <MenuItem Header="Удалить текущий язык" Command="{Binding RemoveLanguageCommand}" />
             </MenuItem>
             <MenuItem Header="Помощь"></MenuItem>
         </Menu>
-        <ContentControl Content="{Binding LanguagesTabsView}" />
+            <!--
+            Visibility="{Binding HasLanguages, 
+                                                              UpdateSourceTrigger=PropertyChanged, 
+                                                              Converter={StaticResource BoolToVisibilityConverter}}" 
+            -->
+            <ContentControl Content="{Binding LanguagesTabsView}" 
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch" 
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"/>
+            <!--<StackPanel Visibility="{Binding HasLanguages, 
+                                             UpdateSourceTrigger=PropertyChanged, 
+                                             Converter={StaticResource BoolToVisibilityConverter}, 
+                                             ConverterParameter=Inverted}"  
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center" Margin="10" FontSize="20">Нет ни одного языка</TextBlock>
+                <Button HorizontalAlignment="Center" Padding="2" Command="{Binding AddLanguageCommand}">Добавить язык</Button>
+            </StackPanel>-->
     </DockPanel>
 </Window>

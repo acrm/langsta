@@ -10,7 +10,14 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0">Статистика</TextBlock>
-        <TextBox Grid.Row="1" Text="{Binding Output, UpdateSourceTrigger=PropertyChanged}" />
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Margin="3">Статистика</TextBlock>
+            <Button Margin="3" Command="{Binding UpdateCommand}">Обновить</Button>
+        </StackPanel>
+        <Border Grid.Row="1" BorderBrush="Silver" BorderThickness="1">
+            <ScrollViewer>
+                <TextBox Padding="5" Text="{Binding Output, UpdateSourceTrigger=PropertyChanged}"/>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </UserControl>

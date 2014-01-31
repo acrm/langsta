@@ -18,13 +18,13 @@ namespace LangStat.Core
             _languagesRepository = languagesRepository;
         }
 
-        public string CreateLanguageStatistics(string languageName)
+        public string BuildLanguageStatistics(string languageName)
         {
             var language = _languagesRepository.GetLanguage(languageName);
-            if (language == null) return string.Empty;
+            if (language == null) return "Нет выбранного языка.";
 
             var languageSources = language.LanguageSourcesRepository.GetAllLanguageSources();
-            if (languageSources == null || languageSources.Length == 0) return string.Empty;
+            if (languageSources == null || languageSources.Length == 0) return "Отсутствуют источники языка";
 
 
             var languageStatistics = new StringBuilder();
@@ -61,6 +61,11 @@ namespace LangStat.Core
         {
             if (string.IsNullOrWhiteSpace(address)) return null;
 
+            if (!address.StartsWith("http://"))
+            {
+                address = "http://" + address;
+            }
+
             var request = (HttpWebRequest)WebRequest.Create(address);
             var response = (HttpWebResponse)request.GetResponse();
             using (var reader = new StreamReader(response.GetResponseStream()))
@@ -70,6 +75,7 @@ namespace LangStat.Core
                 return content;
             }
         }
+        
 
         private string[] ExtractWords(string text)
         {
