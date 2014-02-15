@@ -12,7 +12,7 @@ using LangStat.Core.Contracts;
 
 namespace LangStat.Client.LanguageSourcesComponent
 {
-    public class LanguageSourcesViewModel
+    public class LanguageSourcesViewModel : ViewModelBase
     {
         private readonly ILanguageSourcesRepository _sourcesRepository;
         private readonly Language _language;
@@ -21,6 +21,8 @@ namespace LangStat.Client.LanguageSourcesComponent
         {
             _language = language;
             _sourcesRepository = sourcesRepository;
+            _sourcesRepository.LanguageSourceAdded += OnRepositoryLanguageSourceAdded;
+            _sourcesRepository.LanguageSourceDeleted += OnRepositoryLanguageSourceDeleted;
 
             AddCommand = new DelegateCommand(Add);
             DeleteCommand = new DelegateCommand(Delete);
@@ -33,9 +35,28 @@ namespace LangStat.Client.LanguageSourcesComponent
         
         public ObservableCollection<LanguageSourceViewModel> Items { get; private set; }
 
+        public LanguageSourceViewModel SelectedItem
+        {
+            get { return _selectedItem; }
+            set { _selectedItem = value; RaisePropertyChanged("SelectedItem"); }
+ 
+        }
+
+        private LanguageSourceViewModel _selectedItem;
+
         private void Delete()
         {
-            throw new NotImplementedException();
+            if (SelectedItem == null) return;
+            
+            _sourcesRepository.DeleteLanguageSource(SelectedItem.Id);
+        }
+
+        void OnRepositoryLanguageSourceDeleted(object sender, LanguageSource deletedLanguageSource)
+        {
+            var deletedItem = Items.FirstOrDefault(item => item.Id == deletedLanguageSource.Id);
+            if (deletedItem == null) return;
+
+            Items.Remove(deletedItem);
         }
 
         private void Add()
@@ -47,13 +68,14 @@ namespace LangStat.Client.LanguageSourcesComponent
                 {
                     var languageSourceCreationRequest = editViewModel.GetCreationRequest();
 
-                    var response = _sourcesRepository.CreateLanguageSource(languageSourceCreationRequest);
-                    if (response == null || !response.IsSuccessful) return;
-
-                    var addedLanguageSource = _sourcesRepository.GetLanguageSource(response.Id);
-                    var languageSourceViewModel = new LanguageSourceViewModel(addedLanguageSource);
-                    Items.Add(languageSourceViewModel);
+                    _sourcesRepository.CreateLanguageSource(languageSourceCreationRequest);
                 });
+        }
+
+        void OnRepositoryLanguageSourceAdded(object sender, LanguageSource addedLanguageSource)
+        {
+            var languageSourceViewModel = new LanguageSourceViewModel(addedLanguageSource);
+            Items.Add(languageSourceViewModel);
         }
 
         public DelegateCommand AddCommand { get; private set; }

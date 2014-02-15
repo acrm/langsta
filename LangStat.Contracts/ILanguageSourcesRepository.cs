@@ -10,10 +10,16 @@ namespace LangStat.Core.Contracts
     {
         LanguageSourceCreationResponse CreateLanguageSource(LanguageSourceCreationRequest request);
 
+        bool DeleteLanguageSource(Guid languageSourceId);
+
         LanguageSource GetLanguageSource(Guid languageSourceId);
         
         LanguageSource[] GetAllLanguageSources();
 
+        event EventHandler<LanguageSource> LanguageSourceAdded;
 
+        event EventHandler<LanguageSource> LanguageSourceDeleted;
+
+        event EventHandler<LanguageSource> LanguageSourceUpdated;
     }
 }

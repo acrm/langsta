@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LangStat.Core
@@ -77,14 +78,21 @@ namespace LangStat.Core
         }
         
 
-        private string[] ExtractWords(string text)
+        private string[] ExtractWords(string html)
         {
-            if (string.IsNullOrWhiteSpace(text)) return null;
+            if (string.IsNullOrWhiteSpace(html)) return null;
 
-            var tokens = text
-                    .Split(new char[] { ' ', '<', '>', '"', '=', '.', ',', '?', '!', ':' }, StringSplitOptions.RemoveEmptyEntries);
+            var tagPattern = new Regex("(<[^>]+>)");
+            var nbspPattern = new Regex("&nbsp;");
+            var wordPattern = new Regex(@"\s+");
 
-            return tokens;
+            var text = tagPattern.Replace(html, string.Empty);
+            text = nbspPattern.Replace(text, " ");
+            var words = wordPattern.Split(text);
+
+            return words
+                .Where(word => !string.IsNullOrEmpty(word))
+                .ToArray();
         }
 
         public void SaveWords()

@@ -60,16 +60,17 @@ namespace LangStat.DataAccess
             return true;
         }
 
-        public LanguageSourceDto[] GetLanguageSources(string languageName)
+        public LanguageSourceDto[] GetAllLanguageSources(string languageName)
         {
             var directoryPath = string.Format("{0}/{1}",
                                              baseDirectory,
                                              languageName);
             if (!Directory.Exists(directoryPath)) return null;
 
-            var files = Directory.EnumerateFiles(directoryPath, "*." + fileNameExtension);
+            var fileNames = Directory.EnumerateFiles(directoryPath, "*." + fileNameExtension);
             var languageSources = new List<LanguageSourceDto>();
-            foreach (var fileName in files)
+            
+            foreach (var fileName in fileNames)
             {
                 using (var fileStream = File.OpenText(fileName))
                 {
@@ -111,5 +112,78 @@ namespace LangStat.DataAccess
         }
 
         public event EventHandler<LanguageSourceDto> LanguageSourceAdded;
+        
+        public bool DeleteLanguageSource(string languageName, Guid languageSourceId)
+        {
+            var directoryPath = string.Format("{0}/{1}",
+                                              baseDirectory,
+                                              languageName);
+            if (!Directory.Exists(directoryPath)) return false;
+
+            var fileNames = Directory.EnumerateFiles(directoryPath, "*." + fileNameExtension);
+            foreach (var fileName in fileNames)
+            {
+                var fileToDelete = false;
+                LanguageSourceDto languageSource;
+                // Проверка, что этот файл - тот, который нужно удалить.
+                using (var fileStream = File.OpenText(fileName))
+                {
+                    using (var xmlReader = XmlReader.Create(fileStream))
+                    {
+                        while (xmlReader.Name != "LanguageSource") xmlReader.Read();
+
+                        var address = xmlReader.GetAttribute("Address", "");
+
+                        var idString = xmlReader.GetAttribute("Id", "");
+
+                        Guid id;
+                        var isParsed = Guid.TryParse(idString, out id);
+                        if (!isParsed)
+                        {
+                            id = Guid.Empty;
+                        }
+
+                        languageSource = new LanguageSourceDto
+                        {
+                            Address = address,
+                            Id = id
+                        };
+
+                        fileToDelete = id == languageSourceId;
+                    }
+                }
+
+                // Удаление, если нашли.
+                if (fileToDelete)
+                {
+                    try
+                    {
+                        File.Delete(fileName);
+                        if (languageSource != null)
+                        {
+                            RaiseLanguageSourceDeleted(languageSource);
+                        }
+                        return true;
+                    }
+                    catch 
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public event EventHandler<LanguageSourceDto> LanguageSourceDeleted;
+
+        private void RaiseLanguageSourceDeleted(LanguageSourceDto deletedLanguageSource)
+        {
+            var handler = LanguageSourceDeleted;
+            if (handler != null)
+            {
+                handler.Invoke(this, deletedLanguageSource);
+            }
+        }
     }
 }

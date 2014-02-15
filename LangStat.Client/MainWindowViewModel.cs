@@ -35,7 +35,7 @@ namespace LangStat.Client
             RemoveLanguageCommand = new DelegateCommand(RemoveCurrentLanguage, CanRemoveCurrentLanguage);
             
             Languages = new ObservableCollection<LanguageViewModel>();
-            Languages.CollectionChanged += Languages_CollectionChanged;
+            Languages.CollectionChanged += OnLanguagesCollectionChanged;
 
             var languages = _mainWindow.LanguagesRepository.GetAllLanguages();
             foreach (var language in languages ?? new Language[0])
@@ -91,7 +91,7 @@ namespace LangStat.Client
             _mainWindow.LanguagesRepository.DeleteLanguage(current);
         }
 
-        void Languages_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void OnLanguagesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {

@@ -9,9 +9,13 @@ namespace LangStat.DataAccess.Contracts
     public interface ILanguageSourcesDao
     {
         bool AddLanguageSource(string languageName, LanguageSourceDto languageSource);
+
+        bool DeleteLanguageSource(string languageName, Guid languageSourceId);
         
-        LanguageSourceDto[] GetLanguageSources(string languageName);
+        LanguageSourceDto[] GetAllLanguageSources(string languageName);
         
         event EventHandler<LanguageSourceDto> LanguageSourceAdded;
+
+        event EventHandler<LanguageSourceDto> LanguageSourceDeleted;
     }
 }

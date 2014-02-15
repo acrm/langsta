@@ -18,6 +18,11 @@ namespace LangStat.Client.LanguageSourcesComponent
             Address = _languageSource.Address;
         }
 
+        public Guid Id
+        {
+            get { return _languageSource.Id; }
+        }
+
         public string Address
         {
             get { return _address; }
