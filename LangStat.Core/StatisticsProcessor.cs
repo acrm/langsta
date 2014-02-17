@@ -31,13 +31,7 @@ namespace LangStat.Core
             var languageStatistics = new StringBuilder();
             foreach (var languageSource in languageSources)
             {
-                var content = LoadContent(languageSource.Address);
-                if (content == null) continue;
-                
-                var words = ExtractWords(content);
-                if (words == null || words.Length == 0) continue;
-
-                var statistics = CalculateStatistics(words);
+                var statistics = BuildLanguageSourceStatistics(languageSource);
 
                 languageStatistics.AppendFormat("Источник: {0}\n", languageSource.Address);
                 languageStatistics.AppendLine(statistics);
@@ -47,17 +41,22 @@ namespace LangStat.Core
             return languageStatistics.ToString();
         }
 
-        public event EventHandler<string> TextLoaded;
-
-        private void RaiseTextLoaded(string processedText)
+        private string BuildLanguageSourceStatistics(LanguageSource languageSource)
         {
-            var handler = TextLoaded;
-            if (handler != null)
-            {
-                handler.Invoke(this, processedText);
-            }
-        }
+            if (languageSource == null) return null;
 
+            var content = LoadContent(languageSource.Address);
+            if (content == null) return null;
+
+            string[] misfits;
+            var words = ExtractWords(content, out misfits);
+            if (words == null || words.Length == 0) return null;
+
+            var statistics = CalculateStatistics(words);
+            var misfitsStatistics = CalculateStatistics(misfits);
+            return string.Format("{0}\n\n Отбракованные слова:\n{1}", statistics, misfitsStatistics);
+        }
+                
         private string LoadContent(string address)
         {
             if (string.IsNullOrWhiteSpace(address)) return null;
@@ -75,52 +74,45 @@ namespace LangStat.Core
 
                 return content;
             }
-        }
-        
+        }        
 
-        private string[] ExtractWords(string html)
+        private string[] ExtractWords(string html, out string[] misfits)
         {
+            misfits = null;
+
             if (string.IsNullOrWhiteSpace(html)) return null;
 
             var tagPattern = new Regex("(<[^>]+>)");
+            var scriptTagPattern = new Regex("<script>.*</script>");
             var nbspPattern = new Regex("&nbsp;");
-            var wordPattern = new Regex(@"\s+");
+            var wordPattern = new Regex(@"\s+(\w+)\s+");
+            var wordStrongPattern = new Regex(@"[^\d]+");
 
-            var text = tagPattern.Replace(html, string.Empty);
+            var text = tagPattern.Replace(html, " ");
             text = nbspPattern.Replace(text, " ");
-            var words = wordPattern.Split(text);
+            var wordsMatches = wordPattern.Matches(text);
+            
+            var words = new List<string>(wordsMatches.Count);
+            var misfitsList = new List<string>(wordsMatches.Count);
+            foreach(Match wordMatch in wordsMatches)
+            {
+                var candidate = wordMatch.Groups[1].Value;
+                if (!wordStrongPattern.IsMatch(candidate))
+                {
+                    misfitsList.Add(candidate); 
+                    continue;
+                }
+
+                words.Add(string.Format("[{0}]", wordMatch.Groups[1].Value));
+            }
+
+            misfits = misfitsList.ToArray();
 
             return words
                 .Where(word => !string.IsNullOrEmpty(word))
                 .ToArray();
         }
-
-        public void SaveWords()
-        {
-            //Address = @"http://ru.wikipedia.org/wiki/%D0%98%D0%B7%D1%80%D0%B0%D0%B8%D0%BB%D1%8C";
-            //var content = LoadContent(Address);
-            //var words = ExtractWords(content);
-            //_wordsRepository.SaveWords(Language, words);
-        }
-
-        public Task<string> Process()
-        {
-            return Task.Factory.StartNew<string>(() =>
-            {
-                //var content = LoadContent(Address);
-                //if (content == null) return null;
-
-                //var words = ExtractWords(content);
-                //if (words == null) return null;
-
-                //var report = CalculateStatistics(words);
-                //if (report == null) return null;
-
-                //return report;
-                return "";
-            });
-        }
-
+        
         private string CalculateStatistics(string[] words)
         {
             if (words == null) return null;

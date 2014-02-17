@@ -27,6 +27,7 @@ namespace LangStat.DataAccess
                 .Replace("http", "")
                 .Replace(":", "")
                 .Replace("//", "")
+                .Replace("?", "")
                 .Replace("/", "-");
         }
 
