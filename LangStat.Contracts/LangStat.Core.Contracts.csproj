@@ -7,8 +7,8 @@
     <ProjectGuid>{2B02942B-8598-442D-87AC-5B87AA2547E8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LangStat.Contracts</RootNamespace>
-    <AssemblyName>LangStat.Contracts</AssemblyName>
+    <RootNamespace>LangStat.Core.Contracts</RootNamespace>
+    <AssemblyName>LangStat.Core.Contracts</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,6 +39,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IIgnoredWordsRepository.cs" />
+    <Compile Include="WordStatistics.cs" />
+    <Compile Include="LanguageStatistics.cs" />
+    <Compile Include="LanguageStatisticsBuildingResult.cs" />
     <Compile Include="LanguageSourceCreationResponse.cs" />
     <Compile Include="Language.cs" />
     <Compile Include="LanguageCreationResponse.cs" />

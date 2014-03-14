@@ -13,20 +13,29 @@ namespace LangStat.Core.Contracts
     public class Language
     {
         private readonly ILanguageSourcesRepository _sourcesRepository;
+        private readonly IIgnoredWordsRepository _ignoredWordsRepository;
 
-        public Language(string languageTitle, ILanguageSourcesRepository sourcesRepository)
+        public Language(
+            string languageTitle,
+            ILanguageSourcesRepository sourcesRepository,
+            IIgnoredWordsRepository ignoredWordsRepository)
         {
             Name = languageTitle;
             _sourcesRepository = sourcesRepository;
-        }
-        
-        public ILanguageSourcesRepository LanguageSourcesRepository
-        {
-            get { return _sourcesRepository; }
+            _ignoredWordsRepository = ignoredWordsRepository;
         }
 
         public string Name { get; private set; }
 
+        public ILanguageSourcesRepository LanguageSourcesRepository
+        {
+            get { return _sourcesRepository; }
+        }
+        
+        public IIgnoredWordsRepository IgnoredWordsRepository
+        {
+            get { return _ignoredWordsRepository; }
+        }
         
     }
 }

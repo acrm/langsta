@@ -30,9 +30,7 @@ namespace LangStat.DataAccess
             {
                 using (var xmlWriter = XmlWriter.Create(fileStream))
                 {
-                    xmlWriter.WriteStartElement("Language");
-                    xmlWriter.WriteAttributeString("Name", newLanguage.Name);
-                    xmlWriter.WriteEndElement();
+                    WriteLanguage(newLanguage, xmlWriter);
                     xmlWriter.Flush();
                 }                
             }
@@ -43,7 +41,43 @@ namespace LangStat.DataAccess
 
         public bool UpdateLanguage(LanguageDto updatedLanguage)
         {
-            throw new NotImplementedException();
+            if (updatedLanguage == null) return false;
+
+            var directoryName = string.Format("{0}/{1}", baseDirectory, updatedLanguage.Name);
+            if (!Directory.Exists(directoryName)) return false;
+
+            var descriptorPath = string.Format("{0}/{1}", directoryName, descriptorFileName);
+            if (!File.Exists(descriptorPath)) return false;
+            
+            using (var fileStream = File.OpenWrite(descriptorPath))
+            {
+                using (var xmlWriter = XmlWriter.Create(fileStream, new XmlWriterSettings { Indent = true }))
+                {
+                    WriteLanguage(updatedLanguage, xmlWriter);
+                    xmlWriter.Flush();
+                }
+            }
+
+            RaiseLanguageUpdated(updatedLanguage);
+            return true;
+        }
+
+        private static void WriteLanguage(LanguageDto updatedLanguage, XmlWriter xmlWriter)
+        {
+            xmlWriter.WriteStartElement("Language");
+            xmlWriter.WriteAttributeString("Name", updatedLanguage.Name);
+            xmlWriter.WriteStartElement("IgnoredWords");
+            if (updatedLanguage.IgnoredWords != null)
+            {
+                foreach (var ignoredWord in updatedLanguage.IgnoredWords)
+                {
+                    xmlWriter.WriteStartElement("IgnoredWord");
+                    xmlWriter.WriteString(ignoredWord);
+                    xmlWriter.WriteEndElement();
+                }
+            }
+            xmlWriter.WriteEndElement();
+            xmlWriter.WriteEndElement();
         }
 
         public bool DeleteLanguage(LanguageDto language)
@@ -69,22 +103,61 @@ namespace LangStat.DataAccess
             {
                 var descriptorFile = string.Format("{0}/{1}", directory, descriptorFileName);
                 if (!File.Exists(descriptorFile)) continue;
-
-                var language = new LanguageDto();
+                
                 using (var fileStream = File.OpenText(descriptorFile))
                 {
-                    using (var xmlReader = XmlReader.Create(fileStream))
+                    using (var xmlReader = XmlReader.Create(fileStream, new XmlReaderSettings { IgnoreWhitespace = true }))
                     {
-                        while(xmlReader.Name != "Language") xmlReader.Read();
-                        var languageName = xmlReader.GetAttribute("Name", "");
-
-                        language.Name = languageName; 
+                        var language = ReadLanguage(xmlReader);
+                        languages.Add(language);
                     }
                 }
-                languages.Add(language);
             }
 
             return languages.ToArray();
+        }
+
+        private static LanguageDto ReadLanguage(XmlReader xmlReader)
+        {
+            var language = new LanguageDto();
+            
+            var success = FindElementOrFalse(xmlReader, "Language");
+            if (!success) return null;
+
+            var languageName = xmlReader.GetAttribute("Name", "");
+
+            language.Name = languageName;
+
+            success = FindElementOrFalse(xmlReader, "IgnoredWords");
+            if (!success) return language;
+
+            var ignoredWords = new List<string>();  
+            while(success)
+            {
+                success = FindElementOrFalse(xmlReader, "IgnoredWord");
+                if (!success) break;
+                
+                xmlReader.Read();
+                if (xmlReader.NodeType == XmlNodeType.Text)
+                {
+                    var ignoredWord = xmlReader.ReadContentAsString();
+                    if (string.IsNullOrWhiteSpace(ignoredWord)) continue;
+
+                    ignoredWords.Add(ignoredWord); 
+                }
+            }
+            language.IgnoredWords = ignoredWords.ToArray(); 
+             
+            return language;
+        }
+
+        private static bool FindElementOrFalse(XmlReader reader, string elementName)
+        {
+            reader.Read();
+            while (reader.ReadState != ReadState.EndOfFile && reader.Name != elementName) reader.Read();
+            if (reader.ReadState == ReadState.EndOfFile || reader.ReadState == ReadState.Error) return false;
+            if (reader.Name == elementName) return true;
+            return false;
         }
         
         public LanguageDto GetLanguage(string languageName)
@@ -101,14 +174,7 @@ namespace LangStat.DataAccess
             {
                 using (var xmlReader = XmlReader.Create(fileStream))
                 {
-                    while (xmlReader.Name != "Language") xmlReader.Read();
-                    var name = xmlReader.GetAttribute("Name", "");
-
-                    var language = new LanguageDto
-                        {
-                            Name = name
-                        };
-
+                    var language = ReadLanguage(xmlReader);
                     return language;
                 }
             }

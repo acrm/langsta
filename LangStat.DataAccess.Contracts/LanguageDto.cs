@@ -12,5 +12,10 @@ namespace LangStat.DataAccess.Contracts
         /// Название языка.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Исключённые слова.
+        /// </summary>
+        public string[] IgnoredWords { get; set; } 
     }
 }

@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using LangStat.Core;
 using LangStat.Client.LanguageComponent;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace LangStat.Client
 {
@@ -29,6 +30,7 @@ namespace LangStat.Client
             _mainWindow.LanguagesRepository.LanguageDeleted += OnRepositoryLanguageDeleted;
 
             _tabsViewModel = new TabsViewModel();
+            _tabsViewModel.PropertyChanged += OnTabsViewModelPropertyChanged;
             LanguagesTabsView = new TabsView { Model = _tabsViewModel };
                         
             AddLanguageCommand = new DelegateCommand(AddLanguage);
@@ -43,6 +45,28 @@ namespace LangStat.Client
                 var languageViewModel = new LanguageViewModel(language, mainWindow.StatisticsProcessor);
                 Languages.Add(languageViewModel);
                 _tabsViewModel.OpenTab(language, mainWindow.StatisticsProcessor);
+            }
+        }
+
+        void OnTabsViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "SelectedItem":
+                    var currentLanguageComponent = _tabsViewModel.SelectedItem != null
+                        ? _tabsViewModel.SelectedItem.LanguageComponent
+                        : null;
+                    if (currentLanguageComponent == null) return;
+
+                    var currentStatisticsViewModel = currentLanguageComponent
+                        .Model
+                        .LanguageStatisticsView
+                        .Model;
+                    if (currentStatisticsViewModel == null) return;
+
+                    ExportStatisticsCommand = currentStatisticsViewModel.ExportCommand;
+
+                    break;
             }
         }
 
@@ -110,6 +134,18 @@ namespace LangStat.Client
 
         public DelegateCommand RemoveLanguageCommand { get; private set; }
 
+        public DelegateCommand ExportStatisticsCommand 
+        {
+            get { return _exportStatisticsCommand; }
+            private set
+            {
+                _exportStatisticsCommand = value;
+                RaisePropertyChanged("ExportStatisticsCommand");
+            }
+        }
+
+        private DelegateCommand _exportStatisticsCommand;
+        
         private void AddLanguage()
         {
             var editViewModel = new EditLanguageViewModel();

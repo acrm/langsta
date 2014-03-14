@@ -7,7 +7,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
         <Expander DockPanel.Dock="Bottom" Header="Источники">
-            <ContentControl Content="{Binding LanguageSourcesView}" Height="100" />
+            <ContentControl Content="{Binding LanguageSourcesView}" Height="250" />
         </Expander>
         <ContentControl Content="{Binding LanguageStatisticsView}" />
     </DockPanel>

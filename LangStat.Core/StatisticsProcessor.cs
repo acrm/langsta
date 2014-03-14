@@ -1,4 +1,5 @@
-﻿using LangStat.Core.Contracts;
+﻿using LangStat.Contracts;
+using LangStat.Core.Contracts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,60 +20,160 @@ namespace LangStat.Core
             _languagesRepository = languagesRepository;
         }
 
-        public string BuildLanguageStatistics(string languageName)
+        public Task<LanguageStatisticsBuildingResult> BuildLanguageStatisticsAsync(string languageName)
+        {
+            return Task.Factory.StartNew(() => BuildLanguageStatistics(languageName));
+        }
+        
+        public LanguageStatisticsBuildingResult BuildLanguageStatistics(string languageName)
         {
             var language = _languagesRepository.GetLanguage(languageName);
-            if (language == null) return "Нет выбранного языка.";
+            if (language == null) 
+                return new LanguageStatisticsBuildingResult 
+                    {
+                        BuildIsSuccessful = false,
+                        ErrorMessage = "Нет выбранного языка" 
+                    };
 
             var languageSources = language.LanguageSourcesRepository.GetAllLanguageSources();
-            if (languageSources == null || languageSources.Length == 0) return "Отсутствуют источники языка";
+            if (languageSources == null || languageSources.Length == 0)
+                return new LanguageStatisticsBuildingResult
+                    {
+                        BuildIsSuccessful = false,
+                        ErrorMessage = "Отсутствуют источники языка"
+                    };
 
+            var buildingResults = languageSources
+                .Select(BuildLanguageSourceStatistics)
+                .Where(buildingResult => buildingResult != null)
+                .ToArray();
 
-            var languageStatistics = new StringBuilder();
-            foreach (var languageSource in languageSources)
+            var ignoredWords = new HashSet<string>(language.IgnoredWordsRepository.GetAllWords());
+            
+            var errorMessages = new List<string>();
+            var dic = new Dictionary<string, int>();
+            var wordsTotalCount = 0;
+            foreach (var buildingResult in buildingResults)
             {
-                var statistics = BuildLanguageSourceStatistics(languageSource);
+                if (!buildingResult.BuildIsSuccessful)
+                {
+                    errorMessages.Add(buildingResult.ErrorMessage);
+                    continue;
+                }                 
+                
+                var statistics = buildingResult.Result;
+                if (statistics == null) continue;
 
-                languageStatistics.AppendFormat("Источник: {0}\n", languageSource.Address);
-                languageStatistics.AppendLine(statistics);
-                languageStatistics.AppendLine();
+                wordsTotalCount += statistics.WordsTotalCount;
+
+                foreach (var wordStatistics in statistics.UniqueWords)
+                {
+                    if (ignoredWords.Contains(wordStatistics.Spelling)) continue;
+
+                    if (!dic.ContainsKey(wordStatistics.Spelling))
+                    {
+                        dic[wordStatistics.Spelling] = wordStatistics.CountOfAccurances;
+                    }
+                    else
+                    {
+                        dic[wordStatistics.Spelling] += wordStatistics.CountOfAccurances;
+                    }
+                }                
+            }
+            
+            var wordsStatistics = new WordStatistics[dic.Count];
+            var i = 0;
+            foreach (var record in dic)
+            {
+                wordsStatistics[i] = new WordStatistics 
+                {
+                    Spelling = record.Key,
+                    CountOfAccurances = record.Value 
+                };
+                i++;
             }
 
-            return languageStatistics.ToString();
+            var languageStatistics = new LanguageStatistics 
+            {
+                WordsTotalCount = wordsTotalCount,
+                UniqueWords = wordsStatistics
+            };
+
+            return new LanguageStatisticsBuildingResult
+                {
+                    Result = languageStatistics,
+                    ErrorMessage = errorMessages.Count > 0
+                        ? string.Join("\n", errorMessages)
+                        : null
+                };
         }
 
-        private string BuildLanguageSourceStatistics(LanguageSource languageSource)
+        private SourceStatisticsBuildingResult BuildLanguageSourceStatistics(LanguageSource languageSource)
         {
-            if (languageSource == null) return null;
+            if (languageSource == null) 
+                return new SourceStatisticsBuildingResult
+                {
+                    BuildIsSuccessful = false,
+                    ErrorMessage = "Отсутствует источник."
+                };
 
-            var content = LoadContent(languageSource.Address);
-            if (content == null) return null;
-
+            string errorMessage;
+            var content = LoadContent(languageSource.Address, out errorMessage);
+            if (content == null)
+                return new SourceStatisticsBuildingResult
+                {
+                    BuildIsSuccessful = false,
+                    ErrorMessage = errorMessage
+                };
+                        
             string[] misfits;
             var words = ExtractWords(content, out misfits);
-            if (words == null || words.Length == 0) return null;
+            if (words == null || words.Length == 0)
+                return new SourceStatisticsBuildingResult
+                {
+                    BuildIsSuccessful = false,
+                    ErrorMessage = "Не извлечено ни одного слова."
+                };
 
-            var statistics = CalculateStatistics(words);
-            var misfitsStatistics = CalculateStatistics(misfits);
-            return string.Format("{0}\n\n Отбракованные слова:\n{1}", statistics, misfitsStatistics);
+            var statistics = new SourceStatistics
+            {
+                WordsTotalCount = words.Length,
+                UniqueWords = CalculateUniqueWords(words)
+            };
+
+            return new SourceStatisticsBuildingResult { Result = statistics };
         }
                 
-        private string LoadContent(string address)
+        private string LoadContent(string address, out string errorMessage)
         {
-            if (string.IsNullOrWhiteSpace(address)) return null;
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                errorMessage = "Некорретный адрес.";
+                return null;
+            }
 
             if (!address.StartsWith("http://"))
             {
                 address = "http://" + address;
             }
 
-            var request = (HttpWebRequest)WebRequest.Create(address);
-            var response = (HttpWebResponse)request.GetResponse();
-            using (var reader = new StreamReader(response.GetResponseStream()))
+            try
             {
-                var content = reader.ReadToEnd();
+                var request = (HttpWebRequest)WebRequest.Create(address);
+                request.Timeout = (int)TimeSpan.FromSeconds(5).TotalMilliseconds;
+                var response = (HttpWebResponse)request.GetResponse();
 
-                return content;
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    var content = reader.ReadToEnd();
+                    errorMessage = null; 
+                    return content;
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                return null; 
             }
         }        
 
@@ -103,7 +204,7 @@ namespace LangStat.Core
                     continue;
                 }
 
-                words.Add(string.Format("[{0}]", wordMatch.Groups[1].Value));
+                words.Add(string.Format("{0}", wordMatch.Groups[1].Value.Trim()));
             }
 
             misfits = misfitsList.ToArray();
@@ -113,7 +214,7 @@ namespace LangStat.Core
                 .ToArray();
         }
         
-        private string CalculateStatistics(string[] words)
+        private WordStatistics[] CalculateUniqueWords(string[] words)
         {
             if (words == null) return null;
 
@@ -135,28 +236,32 @@ namespace LangStat.Core
             int i = 0;
             foreach (var record in dictionary)
             {
-                statistics[i] = new WordStatistics { Word = record.Key, CountOfAccurances = record.Value };
+                statistics[i] = new WordStatistics { Spelling = record.Key, CountOfAccurances = record.Value };
                 i++;
             }
-
-            var orderedStatistics = statistics.OrderByDescending(statistic => statistic.CountOfAccurances);
-
-            var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine("Всего слов: " + statistics.Length);
-            foreach (var statistic in orderedStatistics)
-            {
-                stringBuilder.AppendLine(string.Format("{0} - {1}", statistic.Word, statistic.CountOfAccurances));
-            }
-            var output = stringBuilder.ToString();
-
-            return output;
+                    
+            return statistics;
         }
 
-        private struct WordStatistics
+        private class SourceStatistics
         {
-            public string Word { get; set; }
+            public int WordsTotalCount { get; set; }
 
-            public int CountOfAccurances { get; set; }
+            public WordStatistics[] UniqueWords { get; set; }
+        }
+
+        private class SourceStatisticsBuildingResult
+        {
+            public SourceStatisticsBuildingResult()
+            {
+                BuildIsSuccessful = true;
+            }
+
+            public bool BuildIsSuccessful { get; set; }
+
+            public string ErrorMessage { get; set; }
+
+            public SourceStatistics Result { get; set; }
         }
     }
 }

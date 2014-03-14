@@ -23,6 +23,7 @@ namespace LangStat.Core
 
             _languagesDao.LanguageAdded += OnDaoLanguageAdded;
             _languagesDao.LanguageDeleted += OnDaoLanguageDeleted;
+            _languagesDao.LanguageUpdated += OnDaoLanguageUpdated;
 
             var languageDtos = _languagesDao.GetAllLanguages();
                                     
@@ -31,6 +32,25 @@ namespace LangStat.Core
                 var language = CreateLanguageFromDto(languageDto);
                 if (language == null) continue;
                 _languagesCache.Add(language.Name, language);
+            }
+        }
+
+        void OnDaoLanguageAdded(object sender, LanguageDto addedLanguage)
+        {
+            if (addedLanguage == null || addedLanguage.Name == null) return;
+
+            var languageKey = addedLanguage.Name;
+            var language = CreateLanguageFromDto(addedLanguage);
+
+            if (_languagesCache.ContainsKey(languageKey))
+            {
+                _languagesCache[languageKey] = language;
+            }
+            else
+            {
+                _languagesCache.Add(languageKey, language);
+
+                RaiseLanguageAdded(language);
             }
         }
 
@@ -48,30 +68,25 @@ namespace LangStat.Core
             RaiseLanguageDeleted(language);
         }
 
-        void OnDaoLanguageAdded(object sender, LanguageDto addedLanguage)
+        void OnDaoLanguageUpdated(object sender, LanguageDto updatedLanguage)
         {
-            if (addedLanguage == null || addedLanguage.Name == null) return;
+            if (updatedLanguage == null || updatedLanguage.Name == null) return;
 
-            var languageKey = addedLanguage.Name;
-            var language = CreateLanguageFromDto(addedLanguage);
+            var languageKey = updatedLanguage.Name;
+            if (!_languagesCache.ContainsKey(languageKey)) return;
 
-            if (_languagesCache.ContainsKey(languageKey))
-            {
-                _languagesCache[languageKey] = language;
-            }
-            else 
-            {
-                _languagesCache.Add(languageKey, language);
+            var language = CreateLanguageFromDto(updatedLanguage);
+            _languagesCache[languageKey] = language;
 
-                RaiseLanguageAdded(language);
-            }
+            RaiseLanguageUpdated(language);
         }
 
         private Language CreateLanguageFromDto(LanguageDto languageDto)
         {
             if (languageDto == null) return null;
             var languageSourcesRepository = new LanguageSourcesRepository(languageDto.Name, _languageSourcesDao);
-            return new Language(languageDto.Name, languageSourcesRepository);
+            var ignoredWordsRepository = new IgnoredWordsRepository(languageDto.Name, _languagesDao, languageDto.IgnoredWords);
+            return new Language(languageDto.Name, languageSourcesRepository, ignoredWordsRepository);
         }
 
         private LanguageDto CreateLanguageDto(Language language)
@@ -103,7 +118,8 @@ namespace LangStat.Core
 
 
             var languageSourcesRepository = new LanguageSourcesRepository(request.Name, _languageSourcesDao);
-            var language = new Language(request.Name, languageSourcesRepository); 
+            var ignoredWordsRepository = new IgnoredWordsRepository(request.Name, _languagesDao);
+            var language = new Language(request.Name, languageSourcesRepository, ignoredWordsRepository); 
             var languageDto = new LanguageDto { Name = language.Name };
             var isSuccesful = _languagesDao.AddLanguage(languageDto);
             if (!isSuccesful) return new LanguageCreationResponse { IsSuccessful = false };

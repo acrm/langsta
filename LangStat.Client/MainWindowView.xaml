@@ -2,18 +2,17 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:infr="clr-namespace:Infrastructure.Client;assembly=Infrastructure.Client"
-        Title="MainWindow" Height="400" Width="400" Loaded="Window_Loaded">
+        Title="MainWindow" Height="600" Width="400" Loaded="Window_Loaded">
     <Window.Resources>
         <infr:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Статистики">
-                <MenuItem Header="Сохранить..." />
-                <MenuItem Header="Загрузить..." />
+            <MenuItem Header="Статистика">
+                <MenuItem Header="Экспортировать..." Command="{Binding ExportStatisticsCommand, UpdateSourceTrigger=PropertyChanged}" />
             </MenuItem>
-            <MenuItem Header="Источники"></MenuItem>
-            <MenuItem Header="Языки">
+            <MenuItem Header="Источник"></MenuItem>
+            <MenuItem Header="Язык">
                 <MenuItem Header="Добавить..." Command="{Binding AddLanguageCommand}" />
                 <MenuItem Header="Удалить текущий язык" Command="{Binding RemoveLanguageCommand}" />
             </MenuItem>

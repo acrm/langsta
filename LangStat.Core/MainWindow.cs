@@ -12,8 +12,6 @@ namespace LangStat.Core
 {
     public class MainWindow
     {
-        private readonly WordsRepository wordsRepository = new WordsRepository();
-
         public ILanguagesRepository LanguagesRepository { get; private set; }
 
         public StatisticsProcessor StatisticsProcessor { get; private set; }
